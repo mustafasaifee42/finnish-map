@@ -2,7 +2,8 @@ import React , { useEffect } from  'react';
 import * as d3GeoProjection from 'd3-geo-projection';
 import * as topojson from 'topojson';
 import * as d3 from 'd3';
-const mapData = require('./pnro.json');
+//const mapData = require('./pnro.json');  // uncomment for postal code map
+const mapData = require('./finland-municipalities-topojson.json'); // comment this out for postal code map
 const data:any = require('./data.json');
 
 let mapNode!: SVGSVGElement | null;
@@ -12,7 +13,9 @@ const Map: React.FunctionComponent<{width:number , height:number , scale:number 
                       .translate(props.translate);
   const path:any = d3.geoPath().projection(projection);
   let mapShape:any = mapData;
-  const mapShapeData:any = topojson.feature(mapShape, mapShape.objects['pnro-rgdal'])
+  const id = 'kuntarajat'; // comment this out for postal code map
+  //const id = 'pnro-rgdal'; // uncomment for postal code map
+  const mapShapeData:any = topojson.feature(mapShape, mapShape.objects[id])
 
   const colorScale = d3.scaleLinear<string>()
     .domain([0,18000])
@@ -44,9 +47,12 @@ const Map: React.FunctionComponent<{width:number , height:number , scale:number 
       .append('path')
       .attr('class', `country`)
       .attr('d', path)
-      .attr('fill', (d:any) => colorScale(data[d.properties.pnro][0]['population']))
+      .attr('fill', (d:any) => {
+        return '#aaa'
+        return colorScale(data[d.properties.pnro][0]['population'])
+      })
       .on('mouseenter',(d:any) => {
-        console.log(d, data[d.properties.pnro][0])
+        console.log(d)
       })
       .on('click',d => {
           let bounds = path.bounds(d),
