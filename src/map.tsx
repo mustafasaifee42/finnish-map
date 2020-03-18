@@ -76,6 +76,43 @@ const Map: React.FunctionComponent<{width:number , height:number , scale:number 
                 .scale(zoomScale),
             );
       });
+
+    //for adding bubbles or circle on the map
+    zoomGroup
+      .selectAll('.bubble')
+      .data(mapShapeData.features)
+      .enter()
+      .append('circle')
+      .attr('class', d => `bubble`)
+      .attr('cx',d => path.centroid(d)[0])
+      .attr('cy',d => path.centroid(d)[1])
+      .attr('fill','#ff0000')
+      .attr('opacity',0.5)
+      .attr('r', d => {
+        return Math.ceil(10 * Math.random())
+      })
+      .on('click',d => {
+          let bounds = path.bounds(d),
+            dx = bounds[1][0] - bounds[0][0],
+            dy = bounds[1][1] - bounds[0][1],
+            x = (bounds[0][0] + bounds[1][0]) / 2,
+            y = (bounds[0][1] + bounds[1][1]) / 2,
+            zoomScale = Math.max(
+              1,
+              Math.min(10, 0.9 / Math.max(dx / props.width, dy / props.height)),
+            ),
+            translate = [props.width / 2 - zoomScale * x, props.height / 2 - zoomScale * y];
+
+          mapSVG
+            .transition()
+            .duration(500)
+            .call(
+              Zoom.transform,
+              d3.zoomIdentity
+                .translate(translate[0], translate[1])
+                .scale(zoomScale),
+            );
+      });
   });
 
   return ( 
